@@ -26,6 +26,7 @@
       max-width: 960px;
       width: 100%;
       text-align: center;
+      flex: 1;
     }
     h1 {
       font-size: 2.1rem;
@@ -125,11 +126,24 @@
     .close-btn:hover {
       background: #bdbdbd;
     }
+
+    /* Footer */
+    footer {
+      margin-top: 30px;
+      padding: 20px;
+      text-align: center;
+      color: #546e7a;
+      font-size: 0.9rem;
+      border-top: 1px solid #b0bec5;
+      width: 100%;
+    }
+
     @media (max-width: 600px) {
       h1 { font-size: 1.6rem; }
       .subtitle { font-size: 0.85rem; }
       .info-label { min-width: 80px; font-size: 0.9rem; }
       .flag-container img { height: 50px; }
+      footer { font-size: 0.8rem; padding: 15px; }
     }
   </style>
 </head>
@@ -180,6 +194,11 @@
       </div>
     </div>
   </div>
+
+  <!-- Footer con derechos reservados -->
+  <footer>
+    &copy; 2025 Jhorman Jesús Castellanos Morales - Todos los derechos reservados
+  </footer>
 
   <script>
     const svg = d3.select("#mapa");
