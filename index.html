@@ -127,6 +127,55 @@
       background: #bdbdbd;
     }
 
+    /* Contador de población mundial */
+    #world-population {
+      background: linear-gradient(135deg, #0288d1, #00acc1);
+      color: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px auto;
+      width: 100%;
+      max-width: 960px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      text-align: center;
+    }
+    #world-population h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    #population-counter {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin: 10px 0;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .population-stats {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .stat-item {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 10px 15px;
+      border-radius: 8px;
+      min-width: 120px;
+    }
+    .stat-value {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
     /* Footer */
     footer {
       margin-top: 30px;
@@ -143,6 +192,9 @@
       .subtitle { font-size: 0.85rem; }
       .info-label { min-width: 80px; font-size: 0.9rem; }
       .flag-container img { height: 50px; }
+      #population-counter { font-size: 2rem; }
+      .population-stats { flex-direction: column; gap: 10px; }
+      .stat-item { min-width: auto; }
       footer { font-size: 0.8rem; padding: 15px; }
     }
   </style>
@@ -156,6 +208,26 @@
       <!-- Overlay de noche -->
       <rect id="night-overlay" x="0" y="0" width="960" height="540" fill="black" opacity="0"/>
     </svg>
+
+    <!-- Contador de población mundial -->
+    <div id="world-population">
+      <h3>🌎 Población Mundial</h3>
+      <div id="population-counter">0</div>
+      <div class="population-stats">
+        <div class="stat-item">
+          <div class="stat-value" id="total-countries">0</div>
+          <div class="stat-label">Países</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="avg-population">0</div>
+          <div class="stat-label">Promedio por país</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="largest-country">—</div>
+          <div class="stat-label">País más poblado</div>
+        </div>
+      </div>
+    </div>
 
     <!-- Panel de información fijo -->
     <div id="info-panel">
@@ -215,6 +287,8 @@
 
     let countryMap = new Map();
     let pointToCountryId = new Map();
+    let worldPopulation = 0;
+    let totalCountries = 0;
 
     // Función para mapear offsets UTC a zonas horarias IANA aproximadas
     function getApproximateTimezone(utcOffset) {
@@ -299,6 +373,64 @@
             console.warn("Error al determinar día/noche:", e);
             return true;
         }
+    }
+
+    // Función para animar el contador de población
+    function animatePopulationCounter(targetValue, elementId, duration = 2000) {
+      const element = document.getElementById(elementId);
+      const start = 0;
+      const increment = targetValue / (duration / 16);
+      let current = start;
+
+      function updateCounter() {
+        current += increment;
+        if (current >= targetValue) {
+          element.textContent = new Intl.NumberFormat('es').format(Math.round(targetValue));
+          return;
+        }
+        element.textContent = new Intl.NumberFormat('es').format(Math.round(current));
+        requestAnimationFrame(updateCounter);
+      }
+      updateCounter();
+    }
+
+    // Función para calcular estadísticas mundiales
+    function calculateWorldStats(countriesData) {
+      let totalPopulation = 0;
+      let countryCount = 0;
+      let largestCountry = { name: '', population: 0 };
+
+      countriesData.forEach(country => {
+        if (country.population) {
+          totalPopulation += country.population;
+          countryCount++;
+          
+          if (country.population > largestCountry.population) {
+            largestCountry = {
+              name: country.name.common,
+              population: country.population
+            };
+          }
+        }
+      });
+
+      const averagePopulation = Math.round(totalPopulation / countryCount);
+
+      // Actualizar el contador principal
+      animatePopulationCounter(totalPopulation, 'population-counter');
+      
+      // Actualizar estadísticas
+      document.getElementById('total-countries').textContent = countryCount;
+      animatePopulationCounter(averagePopulation, 'avg-population', 1500);
+      
+      // Mostrar el país más poblado
+      const largestCountryElement = document.getElementById('largest-country');
+      if (largestCountry.name) {
+        largestCountryElement.textContent = largestCountry.name;
+        largestCountryElement.title = `${new Intl.NumberFormat('es').format(largestCountry.population)} habitantes`;
+      }
+
+      return { totalPopulation, countryCount, averagePopulation, largestCountry };
     }
 
     // Función para generar puntos globales
@@ -454,6 +586,11 @@
         ]);
         
         const countries = topojson.feature(world, world.objects.countries);
+        
+        // Calcular estadísticas mundiales
+        const stats = calculateWorldStats(countriesData);
+        worldPopulation = stats.totalPopulation;
+        totalCountries = stats.countryCount;
         
         // Mapear países por ccn3 (código numérico) y cca3 (código de 3 letras)
         countriesData.forEach(country => {
