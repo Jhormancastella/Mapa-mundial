@@ -3,6 +3,7 @@ import { showCountryInfo, updateWorldStats } from './ui.js';
 
 const width = 960;
 const height = 540;
+const isMobile = () => window.innerWidth < 600;
 const spacing = 5;
 const maxPoints = 3000;
 
@@ -58,19 +59,25 @@ export async function initializeMap(){
       }
     });
 
-    svg.selectAll('circle').data(landPoints).enter().append('circle')
+    // Usamos solo 'click' — en mobile el browser convierte tap en click automáticamente
+    // Evitamos touchstart con passive:false que el browser ignora cuando hay scroll
+    const circles = svg.selectAll('circle').data(landPoints).enter().append('circle')
       .attr('cx', d=> projection(d)[0])
       .attr('cy', d=> projection(d)[1])
-      .attr('r', 1.8)
+      .attr('r', isMobile() ? 3.5 : 1.8)
       .attr('fill','#0288d1')
       .attr('stroke','#01579b')
       .attr('stroke-width',0.2)
-      .attr('opacity',0)
-      .on('click',(event,d)=>{event.stopPropagation(); showCountryInfoByPoint(d);})
-      .on('touchstart',(event,d)=>{event.preventDefault(); showCountryInfoByPoint(d);})
-      .transition().duration(800).delay((d,i)=>Math.min(i*1.5,2000)).attr('opacity',1);
+      .attr('opacity',0);
 
-    loading.text('✅ Mapa listo. ¡Haz clic en cualquier punto!');
+    // Adjuntar click con addEventListener nativo para mayor compatibilidad
+    circles.each(function(d){
+      this.addEventListener('click', (e)=>{ e.stopPropagation(); showCountryInfoByPoint(d); });
+    });
+
+    circles.transition().duration(800).delay((d,i)=>Math.min(i*1.5,2000)).attr('opacity',1);
+
+    loading.style('display','none');
   }catch(e){
     console.error('Error initializing map',e);
     d3.select('#loading').html('⚠️ Error al cargar el mapa. Recargue la página para intentarlo de nuevo.');

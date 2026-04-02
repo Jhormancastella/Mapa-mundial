@@ -2,7 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0288d1" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
   <link rel="icon" type="image/png" href="https://png.pngtree.com/png-clipart/20240428/original/pngtree-cartoon-planet-earth-astronomy-png-image_14958902.png">
   <title>🌍 Mapa Mundial con Hora y Día/Noche</title>
   <link rel="stylesheet" href="css/base.css">
@@ -13,16 +16,16 @@
 </head>
 <body>
   <div class="container">
-    <h1>Mapa Mundial con Hora Local y Efecto Día/Noche</h1>
+    <h1>🌍 Mapa Mundial con Hora Local y Efecto Día/Noche</h1>
     <p class="subtitle">Haz clic en cualquier punto para ver información del país y su hora local</p>
     <div id="loading">Cargando mapa... (puede tardar unos segundos)</div>
 
     <div id="map-wrapper">
       <svg id="mapa" viewBox="0 0 960 540" preserveAspectRatio="xMidYMid meet"></svg>
-      <!-- Overlay de noche (posicionado desde CSS) -->
       <div id="night-overlay"></div>
     </div>
-n    <div id="world-population">
+
+    <div id="world-population">
       <h3>🌎 Población Mundial</h3>
       <div id="population-counter">0</div>
       <div class="population-stats">
@@ -42,7 +45,7 @@
     </div>
 
     <div id="info-panel">
-      <button class="close-btn" id="close-panel">Cerrar</button>
+      <button class="close-btn" id="close-panel">✕ Cerrar</button>
       <h2 id="panel-title">Información del País</h2>
       <div class="info-row">
         <span class="info-label">País:</span>
@@ -79,7 +82,7 @@
   </div>
 
   <footer>
-    &copy; 2025 Jhorman Jesús Castellanos Morales - Todos los derechos reservados
+    &copy; 2025 Jhorman Jesús Castellanos Morales · Todos los derechos reservados
   </footer>
 
   <script type="module" src="js/main.js"></script>
